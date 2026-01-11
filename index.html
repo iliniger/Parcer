@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKY SCANNER V4</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f1a; color: #f8fafc; margin: 0; user-select: none; }
+        .glass { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .mode-card { border: 2px solid transparent; transition: 0.2s; cursor: pointer; }
+        .mode-card.active { transform: scale(1.02); background: rgba(59, 130, 246, 0.1); }
+        .active[data-mode="easy"] { border-color: #22c55e; }
+        .active[data-mode="medium"] { border-color: #eab308; }
+        .active[data-mode="fat"] { border-color: #ef4444; }
+        .user-item { animation: fadeIn 0.3s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body class="pb-40 px-4">
+
+    <!-- Окно входа -->
+    <div id="subModal" class="fixed inset-0 z-[100] bg-black flex items-center justify-center p-6">
+        <div class="glass w-full max-w-sm p-8 rounded-[2rem] text-center">
+            <i class="fas fa-unlock-alt text-4xl text-blue-500 mb-4"></i>
+            <h2 class="text-xl font-black mb-2 uppercase">Доступ ограничен</h2>
+            <p class="text-slate-400 text-sm mb-6">Вступите в наш канал, чтобы активировать парсер чатов.</p>
+            <a href="https://t.me/rezervTimSky" target="_blank" onclick="unlock()" class="block w-full bg-blue-600 text-white font-bold py-4 rounded-xl no-underline uppercase text-xs tracking-widest">
+                Вступить и начать
+            </a>
+        </div>
+    </div>
+
+    <!-- Основной интерфейс -->
+    <div id="mainApp" class="hidden">
+        <header class="pt-6 mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-black italic">SKY SCANNER V4</h1>
+                <p class="text-[9px] text-blue-500 font-bold uppercase tracking-widest">Connected to 3 folders</p>
+            </div>
+            <div class="text-[9px] bg-blue-500/10 p-2 rounded-lg border border-blue-500/20 text-blue-400 font-bold">API: ONLINE</div>
+        </header>
+
+        <!-- Выбор режима -->
+        <div class="space-y-3 mb-8">
+            <div onclick="setMode('easy')" id="m-easy" class="mode-card glass p-4 rounded-2xl flex items-center justify-between active" data-mode="easy">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center text-green-500"><i class="fas fa-leaf"></i></div>
+                    <div class="text-sm font-bold">🟢 Легкий режим</div>
+                </div>
+                <i class="fas fa-check-circle text-green-500 check"></i>
+            </div>
+            <div onclick="setMode('medium')" id="m-medium" class="mode-card glass p-4 rounded-2xl flex items-center justify-between" data-mode="medium">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center text-yellow-500"><i class="fas fa-star"></i></div>
+                    <div class="text-sm font-bold">🟡 Средний режим</div>
+                </div>
+                <i class="fas fa-check-circle text-yellow-500 check opacity-0"></i>
+            </div>
+            <div onclick="setMode('fat')" id="m-fat" class="mode-card glass p-4 rounded-2xl flex items-center justify-between" data-mode="fat">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center text-red-500"><i class="fas fa-gem"></i></div>
+                    <div class="text-sm font-bold">🔴 Жирный режим</div>
+                </div>
+                <i class="fas fa-check-circle text-red-500 check opacity-0"></i>
+            </div>
+        </div>
+
+        <button id="scanBtn" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-white uppercase text-xs tracking-widest shadow-xl shadow-blue-900/40">
+            Сканировать папки чатов
+        </button>
+
+        <!-- Процесс -->
+        <div id="loader" class="hidden mt-6 text-center">
+            <div class="text-blue-500 text-[10px] font-mono pulse uppercase">Идет извлечение данных из t.me/addlist/...</div>
+        </div>
+
+        <!-- Результаты -->
+        <div id="results" class="hidden mt-8">
+            <div class="flex justify-between mb-4 px-1">
+                <span class="text-[10px] font-black text-slate-500 uppercase">Найдено 15 человек:</span>
+                <button onclick="copyAll()" class="text-[10px] font-bold text-blue-400 uppercase">Копировать</button>
+            </div>
+            <div id="list" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <div class="fixed bottom-6 left-4 right-4 space-y-2">
+        <a href="https://t.me/rezervTimSky" target="_blank" class="glass block w-full py-4 rounded-2xl text-center no-underline text-white font-bold text-[10px] uppercase tracking-widest border-blue-500/20">
+            Вступить в тиму @rezervTimSky
+        </a>
+        <!-- Секретная кнопка для админа -->
+        <button onclick="toggleAdmin()" class="w-full opacity-10 text-[8px] text-slate-700 uppercase">Настроить базу</button>
+    </div>
+
+    <!-- Админка (скрыта) -->
+    <div id="admin" class="hidden fixed inset-0 z-[200] bg-black p-6">
+        <h2 class="text-white mb-4">Вставьте свои @юзернеймы</h2>
+        <textarea id="customUsers" class="w-full h-64 bg-slate-900 text-white p-4 rounded-xl text-xs" placeholder="@user1 @user2 ..."></textarea>
+        <button onclick="toggleAdmin()" class="mt-4 bg-blue-600 w-full py-3 rounded-xl text-white">Сохранить</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        let mode = 'easy';
+        let found = [];
+        const folders = ['Gmkl0m4kvcMxMjhi', 'oNIUoiIeMoA2MzU6', 'a4Fl22KuaS1jZDUy'];
+
+        function unlock() {
+            localStorage.setItem('sky_v4_access', '1');
+            document.getElementById('subModal').style.display = 'none';
+            document.getElementById('mainApp').classList.remove('hidden');
+            if(tg.expand) tg.expand();
+        }
+
+        if(localStorage.getItem('sky_v4_access')) unlock();
+
+        function setMode(m) {
+            mode = m;
+            document.querySelectorAll('.mode-card').forEach(c => {
+                c.classList.remove('active');
+                c.querySelector('.check').classList.add('opacity-0');
+            });
+            document.getElementById('m-'+m).classList.add('active');
+            document.getElementById('m-'+m).querySelector('.check').classList.remove('opacity-0');
+        }
+
+        document.getElementById('scanBtn').onclick = async () => {
+            document.getElementById('scanBtn').disabled = true;
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            
+            await new Promise(r => setTimeout(r, 1500));
+            
+            render();
+            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('scanBtn').disabled = false;
+        };
+
+        function render() {
+            const list = document.getElementById('list');
+            list.innerHTML = '';
+            found = [];
+            
+            // Если админ вставил своих людей
+            let custom = document.getElementById('customUsers').value.trim().split(/[\s,]+/);
+            custom = custom.filter(i => i.startsWith('@'));
+
+            for(let i=0; i<15; i++) {
+                let u = custom.length > 5 ? custom[Math.floor(Math.random()*custom.length)] : '@user' + Math.floor(Math.random()*999);
+                if(u.startsWith('@@')) u = u.substring(1);
+                found.push(u);
+
+                let price = (Math.random()*3).toFixed(1) + ' TON';
+                let style = 'text-green-500 bg-green-500/10';
+                if(mode==='medium') { price = (Math.random()*12+3).toFixed(1) + ' TON'; style = 'text-yellow-500 bg-yellow-500/10'; }
+                if(mode==='fat') { price = (Math.random()*500+20).toFixed(1) + ' TON'; style = 'text-red-500 bg-red-500/10'; }
+
+                const folder = folders[Math.floor(Math.random()*folders.length)];
+
+                list.innerHTML += `
+                    <div class="glass p-4 rounded-2xl flex justify-between items-center user-item">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-xs">${u[1].toUpperCase()}</div>
+                            <div>
+                                <div class="text-sm font-bold">${u}</div>
+                                <div class="text-[8px] uppercase font-black ${style} px-2 py-0.5 rounded inline-block mt-1">${price}</div>
+                                <div class="text-[7px] text-slate-500 mt-1 uppercase">Из папки: ${folder.substring(0,6)}...</div>
+                            </div>
+                        </div>
+                        <a href="https://t.me/${u.replace('@','')}" target="_blank" class="bg-blue-600 px-4 py-2 rounded-lg text-[10px] font-bold text-white no-underline">ЧАТ</a>
+                    </div>
+                `;
+            }
+        }
+
+        function copyAll() {
+            navigator.clipboard.writeText(found.join('\n'));
+            if(tg.showAlert) tg.showAlert('Скопировано 15 человек!');
+        }
+
+        function toggleAdmin() {
+            const a = document.getElementById('admin');
+            a.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
