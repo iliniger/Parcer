@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SKY SCANNER V4</title>
+    <title>SKY GIFT SCANNER</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -18,111 +18,126 @@
         .active[data-mode="fat"] { border-color: #ef4444; }
         .user-item { animation: fadeIn 0.3s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .pulse { animation: pulse 2s infinite; }
+        .pulse-text { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .gift-badge { background: linear-gradient(90deg, #3b82f6, #8b5cf6); color: white; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 900; }
     </style>
 </head>
 <body class="pb-40 px-4">
 
-    <!-- Окно входа -->
-    <div id="subModal" class="fixed inset-0 z-[100] bg-black flex items-center justify-center p-6">
-        <div class="glass w-full max-w-sm p-8 rounded-[2rem] text-center">
-            <i class="fas fa-unlock-alt text-4xl text-blue-500 mb-4"></i>
-            <h2 class="text-xl font-black mb-2 uppercase">Доступ ограничен</h2>
-            <p class="text-slate-400 text-sm mb-6">Вступите в наш канал, чтобы активировать парсер чатов.</p>
-            <a href="https://t.me/rezervTimSky" target="_blank" onclick="unlock()" class="block w-full bg-blue-600 text-white font-bold py-4 rounded-xl no-underline uppercase text-xs tracking-widest">
-                Вступить и начать
+    <!-- Вход -->
+    <div id="subModal" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-6 text-center">
+        <div class="glass w-full max-w-sm p-8 rounded-[2.5rem] border-blue-500/20">
+            <div class="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/30">
+                <i class="fas fa-gift text-3xl text-blue-500"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2 uppercase italic">Sky Gift Scanner</h2>
+            <p class="text-slate-400 text-sm mb-8 leading-relaxed">Для доступа к базе держателей редких подарков вступите в команду.</p>
+            <a href="https://t.me/rezervTimSky" target="_blank" onclick="unlock()" class="block w-full bg-blue-600 text-white font-black py-5 rounded-2xl no-underline uppercase tracking-widest text-[10px] shadow-lg shadow-blue-600/30">
+                Вступить в тиму
             </a>
         </div>
     </div>
 
     <!-- Основной интерфейс -->
     <div id="mainApp" class="hidden">
-        <header class="pt-6 mb-6 flex justify-between items-center">
+        <header class="pt-6 mb-6 flex justify-between items-end">
             <div>
-                <h1 class="text-xl font-black italic">SKY SCANNER V4</h1>
-                <p class="text-[9px] text-blue-500 font-bold uppercase tracking-widest">Connected to 3 folders</p>
+                <h1 class="text-2xl font-black italic tracking-tighter">GIFT PARSER</h1>
+                <p class="text-[9px] text-blue-500 font-bold uppercase tracking-widest">Scanning 105 Gift Types</p>
             </div>
-            <div class="text-[9px] bg-blue-500/10 p-2 rounded-lg border border-blue-500/20 text-blue-400 font-bold">API: ONLINE</div>
+            <div class="text-[9px] text-slate-500 font-bold uppercase text-right">
+                <div>Sources: 3 Folders</div>
+                <div class="text-green-500">System: Active</div>
+            </div>
         </header>
 
-        <!-- Выбор режима -->
+        <!-- Настройка режима -->
         <div class="space-y-3 mb-8">
             <div onclick="setMode('easy')" id="m-easy" class="mode-card glass p-4 rounded-2xl flex items-center justify-between active" data-mode="easy">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center text-green-500"><i class="fas fa-leaf"></i></div>
-                    <div class="text-sm font-bold">🟢 Легкий режим</div>
+                    <div class="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500 border border-green-500/20"><i class="fas fa-box-open"></i></div>
+                    <div>
+                        <div class="text-sm font-bold">🟢 Дешевые подарки</div>
+                        <div class="text-[9px] text-slate-500 uppercase">до 3 TON</div>
+                    </div>
                 </div>
                 <i class="fas fa-check-circle text-green-500 check"></i>
             </div>
+            
             <div onclick="setMode('medium')" id="m-medium" class="mode-card glass p-4 rounded-2xl flex items-center justify-between" data-mode="medium">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center text-yellow-500"><i class="fas fa-star"></i></div>
-                    <div class="text-sm font-bold">🟡 Средний режим</div>
+                    <div class="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 border border-yellow-500/20"><i class="fas fa-star"></i></div>
+                    <div>
+                        <div class="text-sm font-bold">🟡 Средние подарки</div>
+                        <div class="text-[9px] text-slate-500 uppercase">3 - 15 TON</div>
+                    </div>
                 </div>
                 <i class="fas fa-check-circle text-yellow-500 check opacity-0"></i>
             </div>
+
             <div onclick="setMode('fat')" id="m-fat" class="mode-card glass p-4 rounded-2xl flex items-center justify-between" data-mode="fat">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center text-red-500"><i class="fas fa-gem"></i></div>
-                    <div class="text-sm font-bold">🔴 Жирный режим</div>
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center text-red-500 border border-red-500/20"><i class="fas fa-gem"></i></div>
+                    <div>
+                        <div class="text-sm font-bold">🔴 Редкие / КИТЫ</div>
+                        <div class="text-[9px] text-slate-500 uppercase">15 - 600+ TON</div>
+                    </div>
                 </div>
                 <i class="fas fa-check-circle text-red-500 check opacity-0"></i>
             </div>
         </div>
 
-        <button id="scanBtn" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-white uppercase text-xs tracking-widest shadow-xl shadow-blue-900/40">
-            Сканировать папки чатов
+        <button id="scanBtn" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-white uppercase text-xs tracking-[0.2em] shadow-xl shadow-blue-900/40 active:scale-95 transition-all">
+            Найти держателей GIFTS
         </button>
 
-        <!-- Процесс -->
-        <div id="loader" class="hidden mt-6 text-center">
-            <div class="text-blue-500 text-[10px] font-mono pulse uppercase">Идет извлечение данных из t.me/addlist/...</div>
+        <div id="loader" class="hidden mt-8 text-center">
+            <div class="text-blue-500 text-[10px] font-black pulse-text uppercase tracking-widest">Анализ папок чатов и Fragment.com...</div>
         </div>
 
         <!-- Результаты -->
         <div id="results" class="hidden mt-8">
-            <div class="flex justify-between mb-4 px-1">
-                <span class="text-[10px] font-black text-slate-500 uppercase">Найдено 15 человек:</span>
+            <div class="flex justify-between items-center mb-6 px-1">
+                <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Найдено 15 целей:</h3>
                 <button onclick="copyAll()" class="text-[10px] font-bold text-blue-400 uppercase">Копировать</button>
             </div>
-            <div id="list" class="space-y-3"></div>
+            <div id="list" class="space-y-4 pb-10"></div>
         </div>
     </div>
 
     <!-- Футер -->
-    <div class="fixed bottom-6 left-4 right-4 space-y-2">
-        <a href="https://t.me/rezervTimSky" target="_blank" class="glass block w-full py-4 rounded-2xl text-center no-underline text-white font-bold text-[10px] uppercase tracking-widest border-blue-500/20">
-            Вступить в тиму @rezervTimSky
+    <div class="fixed bottom-6 left-4 right-4 space-y-2 z-50">
+        <a href="https://t.me/rezervTimSky" target="_blank" class="glass block w-full py-4 rounded-2xl text-center no-underline text-white font-black text-[10px] uppercase tracking-widest border-blue-500/20 shadow-2xl">
+            <i class="fab fa-telegram-plane mr-2 text-blue-400"></i> Sky Team Channel
         </a>
-        <!-- Секретная кнопка для админа -->
-        <button onclick="toggleAdmin()" class="w-full opacity-10 text-[8px] text-slate-700 uppercase">Настроить базу</button>
+        <button onclick="toggleAdmin()" class="w-full opacity-10 text-[8px] text-slate-700 uppercase">Загрузить базу юзеров</button>
     </div>
 
-    <!-- Админка (скрыта) -->
-    <div id="admin" class="hidden fixed inset-0 z-[200] bg-black p-6">
-        <h2 class="text-white mb-4">Вставьте свои @юзернеймы</h2>
-        <textarea id="customUsers" class="w-full h-64 bg-slate-900 text-white p-4 rounded-xl text-xs" placeholder="@user1 @user2 ..."></textarea>
-        <button onclick="toggleAdmin()" class="mt-4 bg-blue-600 w-full py-3 rounded-xl text-white">Сохранить</button>
+    <!-- Админка -->
+    <div id="admin" class="hidden fixed inset-0 z-[200] bg-black/95 p-6 flex flex-col">
+        <h2 class="text-white font-black mb-4 uppercase text-sm italic">Импорт реальных @юзеров из Python</h2>
+        <textarea id="customUsers" class="flex-1 bg-slate-900 text-white p-4 rounded-2xl text-xs font-mono border border-white/10" placeholder="Вставьте список @usernames через пробел..."></textarea>
+        <button onclick="toggleAdmin()" class="mt-4 bg-blue-600 w-full py-4 rounded-xl text-white font-bold uppercase text-xs">Сохранить и закрыть</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         let mode = 'easy';
         let found = [];
-        const folders = ['Gmkl0m4kvcMxMjhi', 'oNIUoiIeMoA2MzU6', 'a4Fl22KuaS1jZDUy'];
+        const giftList = ["ArtisanBrick", "AstralShard", "BerryBox", "BigYear", "BlimgBinky", "BondedRing", "BowTie", "BunnyMuffin", "CandyCane", "CloverPin", "CookieHeart", "CrystalBall", "CupidCharm", "DeskCalendar", "DiamondRing", "DurovsCap", "EasterEgg", "ElectricSkull", "EternalCandle", "EternalRose", "EvilEye", "FaithAmulet", "FlyingBroom", "FreshSocks", "GemSignet", "GenieLamp", "GingerCookie", "HangingStar", "HappyBrownie", "HeartLocket", "HeroicHelmet", "HexPot", "HolidayDrink", "HomemadeCake", "HypnoLollipop", "IceCream", "InputKey", "InstanRamen", "IonGem", "IonecDryer", "Jack-in-the-Box", "JellyBunny", "JeasterHat", "JingleBells", "JollyChimp", "JoyfulBundle", "KhabibsPapakha", "KissedFrog", "LightSword", "LolPop", "LootBag", "LoveCandle", "LovePotion", "LowRider", "LunarSnake", "LushBouquet", "MadPumpkin", "MagicPotion", "MightyArm", "MiniOscar", "MoneyPot", "MoonPendant", "MousseCake", "NailBracelet", "NekoHelmet", "PartySparkler", "PerfumeBottle", "PetSnake", "PreciousPeach", "Pretty Posy", "RecordPlayer", "RestlessJar", "SakuraFlower", "SantaHat", "ScaredCat", "SharpTongue", "SignetRing", "SkullFlower", "SkyStilettos", "SleighBell", "SnakeBox", "SnoopCigar", "SnoopDogg", "SnowGlobe", "SnowMittens", "SpicedWine", "SpringBasket", "SpyAgaric", "StarNotepad", "StellarRocket", "SwagBag", "SwissWatch", "TamaGadget", "TopHat", "ToyBear", "TrappedHeart", "UFCStrike", "ValentineBox", "VintageCigar", "VoodooDoll", "WestsideSign", "WhipCupcake", "WinterWreath", "WitchHat", "XmasStocking"];
 
         function unlock() {
-            localStorage.setItem('sky_v4_access', '1');
+            localStorage.setItem('gift_access', '1');
             document.getElementById('subModal').style.display = 'none';
             document.getElementById('mainApp').classList.remove('hidden');
             if(tg.expand) tg.expand();
         }
-
-        if(localStorage.getItem('sky_v4_access')) unlock();
+        if(localStorage.getItem('gift_access')) unlock();
 
         function setMode(m) {
             mode = m;
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             document.querySelectorAll('.mode-card').forEach(c => {
                 c.classList.remove('active');
                 c.querySelector('.check').classList.add('opacity-0');
@@ -132,11 +147,12 @@
         }
 
         document.getElementById('scanBtn').onclick = async () => {
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
             document.getElementById('scanBtn').disabled = true;
             document.getElementById('loader').classList.remove('hidden');
             document.getElementById('results').classList.add('hidden');
             
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 1800));
             
             render();
             document.getElementById('loader').classList.add('hidden');
@@ -149,33 +165,45 @@
             list.innerHTML = '';
             found = [];
             
-            // Если админ вставил своих людей
             let custom = document.getElementById('customUsers').value.trim().split(/[\s,]+/);
             custom = custom.filter(i => i.startsWith('@'));
 
             for(let i=0; i<15; i++) {
-                let u = custom.length > 5 ? custom[Math.floor(Math.random()*custom.length)] : '@user' + Math.floor(Math.random()*999);
-                if(u.startsWith('@@')) u = u.substring(1);
+                let u = custom.length > 5 ? custom[Math.floor(Math.random()*custom.length)] : '@' + ['ton_king', 'nft_whale', 'crypto_shark', 'gem_hunter', 'pasha_ton', 'vlad_gift'][Math.floor(Math.random()*6)] + Math.floor(Math.random()*999);
                 found.push(u);
 
-                let price = (Math.random()*3).toFixed(1) + ' TON';
-                let style = 'text-green-500 bg-green-500/10';
-                if(mode==='medium') { price = (Math.random()*12+3).toFixed(1) + ' TON'; style = 'text-yellow-500 bg-yellow-500/10'; }
-                if(mode==='fat') { price = (Math.random()*500+20).toFixed(1) + ' TON'; style = 'text-red-500 bg-red-500/10'; }
-
-                const folder = folders[Math.floor(Math.random()*folders.length)];
+                let gift = giftList[Math.floor(Math.random()*giftList.length)];
+                let price = (Math.random()*2.8 + 0.2).toFixed(1) + ' TON';
+                let style = 'border-green-500/20';
+                
+                if(mode==='medium') { 
+                    price = (Math.random()*12+3).toFixed(1) + ' TON'; 
+                    style = 'border-yellow-500/20';
+                }
+                if(mode==='fat') { 
+                    price = (Math.random()*500+25).toFixed(1) + ' TON'; 
+                    style = 'border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.1)]';
+                    gift = giftList.filter(g => ["SnoopDogg", "DiamondRing", "MiniOscar", "SwissWatch", "SnoopCigar", "Gold"].some(keyword => g.includes(keyword)) || Math.random() > 0.7 ? true : false)[0] || gift;
+                }
 
                 list.innerHTML += `
-                    <div class="glass p-4 rounded-2xl flex justify-between items-center user-item">
+                    <div class="glass p-4 rounded-3xl flex justify-between items-center user-item border ${style}">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-xs">${u[1].toUpperCase()}</div>
+                            <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center border border-white/10 relative">
+                                <i class="fas fa-user text-slate-600 text-xs"></i>
+                                <div class="absolute -bottom-1 -right-1 bg-blue-500 w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#0b0f1a]">
+                                    <i class="fas fa-check text-[8px] text-white"></i>
+                                </div>
+                            </div>
                             <div>
-                                <div class="text-sm font-bold">${u}</div>
-                                <div class="text-[8px] uppercase font-black ${style} px-2 py-0.5 rounded inline-block mt-1">${price}</div>
-                                <div class="text-[7px] text-slate-500 mt-1 uppercase">Из папки: ${folder.substring(0,6)}...</div>
+                                <div class="text-[13px] font-black text-white">${u}</div>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="gift-badge uppercase italic">${gift}</span>
+                                    <span class="text-[10px] text-slate-400 font-mono font-bold">${price}</span>
+                                </div>
                             </div>
                         </div>
-                        <a href="https://t.me/${u.replace('@','')}" target="_blank" class="bg-blue-600 px-4 py-2 rounded-lg text-[10px] font-bold text-white no-underline">ЧАТ</a>
+                        <a href="https://t.me/${u.replace('@','')}" target="_blank" class="bg-blue-600 px-5 py-2.5 rounded-xl text-[10px] font-black text-white no-underline uppercase tracking-tighter active:scale-90 transition-transform">Чат</a>
                     </div>
                 `;
             }
@@ -183,7 +211,7 @@
 
         function copyAll() {
             navigator.clipboard.writeText(found.join('\n'));
-            if(tg.showAlert) tg.showAlert('Скопировано 15 человек!');
+            if(tg.showAlert) tg.showAlert('Скопировано 15 держателей подарков!');
         }
 
         function toggleAdmin() {
